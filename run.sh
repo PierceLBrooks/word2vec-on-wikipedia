@@ -1,18 +1,15 @@
 # download the latest English wikipedia dump
-curl -L -O "https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2"
+#curl -L -O "https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2"
 
 # extract and clean texts from downloaded wikipedia dump
 mkdir -p extracted
-python WikiExtractor.py enwiki-latest-pages-articles.xml.bz2 -b 1G -o extracted --no-template --processes 24
+python3 WikiExtractor.py enwiki-latest-pages-articles.xml.bz2 -b 1G -o extracted --no-template --processes 24
 
 # process the extracted wiki text corpus including: splitting the sentence, sentence tokenization,
 # removing sentences that contain less than 20 characters or less then 5 tokens,
 # converting all numerals into 0, say, 1993 converted to 0000
 mkdir -p processed
-for i in {00..11};
-do
-	python wiki-corpus-prepare.py extracted/wiki_$i processed/wiki_$i &
-done
+python3 prepare.py
 
 # merge all the wikipedia text file
 cat processed/wiki_* > processed/wiki

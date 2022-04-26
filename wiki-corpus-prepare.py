@@ -3,10 +3,12 @@ from pycorenlp import StanfordCoreNLP
 import re
 import time
 import sys
+import json
+from importlib import reload
 
 stdout = sys.stdout
 reload(sys)
-sys.setdefaultencoding('utf-8')
+#sys.setdefaultencoding('utf-8')
 sys.stdout = stdout
 nlp = StanfordCoreNLP('http://localhost:9000')
 
@@ -24,16 +26,17 @@ with open(infilePath, 'r') as f:
         if len(text) > 20:
             if not text.startswith('<doc id='):
                 text = re.sub('\d', '0', text.lower())
-                output = nlp.annotate(text, properties={
+                output = json.loads(nlp.annotate(text, properties={
                                           'annotators': 'ssplit',
                                           'outputFormat': 'json',
                                           'threads': '24',
                                           'tokenize.options': 'normalizeParentheses=false, normalizeOtherBrackets=false'
-                                          })
+                                          }))
                 try:
                     sents = [[token['word'] for token in sent['tokens']] for sent in output['sentences'] if len(sent['tokens']) >= 5]
                 except Exception as e:
-                    print(e.message, output)
+                    print(output)
+                    sys.exit(0)
                 else:
                     for sent in sents:
                         outfile.write(' '.join(sent)+'\n')
